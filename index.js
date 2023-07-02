@@ -1,45 +1,60 @@
-const yargs = require('yargs')
-const package = require('./package.json')
-const { addNote, printNotes, deleteNoteById } = require('./notes.controller')
+const express = require('express')
+const chalk = require('chalk')
+const path = require('path')
+const { addNote, getNotes, deleteNoteById, editById } = require('./notes.controller')
 
-yargs.version(package.version)
+const port = 3000
 
-yargs.command({
-  command: 'add',
-  describe: 'Add new note to list',
-  builder: {
-    title: {
-      type: 'string',
-      describe: 'Note title',
-      demandOption: true,
-    },
-  },
-  handler({ title }) {
-    addNote(title)
-  },
+const app = express()
+
+app.set('view engine', 'ejs')
+app.set('views', 'pages')
+
+app.use(express.static(path.resolve(__dirname, 'public')))
+app.use(express.json())
+
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+)
+
+app.get('/', async (req, res) => {
+  res.render('index', {
+    title: 'Express App',
+    notes: await getNotes(),
+    created: false,
+  })
 })
 
-yargs.command({
-  command: 'list',
-  describe: 'Print all notes',
-  handler() {
-    printNotes()
-  },
+app.put('/:id', async (req, res) => {
+  await editById(req.params.id, req.body.title)
+  res.render('index', {
+    title: 'Express App',
+    notes: await getNotes(),
+    created: false,
+  })
 })
 
-yargs.command({
-  command: 'remove',
-  describe: 'Remove note by id',
-  builder: {
-    id: {
-      type: 'string',
-      describe: 'Note id',
-      demandOption: true,
-    },
-  },
-  handler({ id }) {
-    deleteNoteById(id)
-  },
+app.post('/', async (req, res) => {
+  await addNote(req.body.title)
+  res.render('index', {
+    title: 'Express App',
+    notes: await getNotes(),
+    created: true,
+  })
 })
 
-yargs.parse()
+app.delete('/:id', async (req, res) => {
+  await deleteNoteById(req.params.id)
+
+  res.render('index', {
+    title: 'Express App',
+    notes: await getNotes(),
+    created: false,
+  })
+})
+
+app.listen(port, () => {
+  console.log(chalk.green(`Server has been started on ${port}...`))
+})

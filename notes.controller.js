@@ -38,8 +38,28 @@ async function deleteNoteById(id) {
   await fs.writeFile(notesPath, JSON.stringify(newNotes))
 }
 
+async function editById(id, title) {
+  console.log(chalk.bgRed(`${id}: ${title}`))
+  const notes = await getNotes()
+
+  const editIndex = notes.findIndex((item) => {
+    return item.id === id
+  })
+
+  console.log(editIndex)
+
+  notes[editIndex] = {
+    ...notes[editIndex],
+    title: title,
+  }
+
+  await fs.writeFile(notesPath, JSON.stringify(notes))
+}
+
 module.exports = {
   addNote,
   printNotes,
-  deleteNoteById
+  deleteNoteById,
+  getNotes,
+  editById,
 }
