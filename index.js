@@ -28,6 +28,7 @@ app.get('/', async (req, res) => {
 })
 
 app.put('/:id', async (req, res) => {
+  console.log(req.body.title)
   await editById(req.params.id, req.body.title)
   res.render('index', {
     title: 'Express App',

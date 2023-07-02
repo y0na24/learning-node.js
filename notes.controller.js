@@ -46,8 +46,6 @@ async function editById(id, title) {
     return item.id === id
   })
 
-  console.log(editIndex)
-
   notes[editIndex] = {
     ...notes[editIndex],
     title: title,
